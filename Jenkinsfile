@@ -3,6 +3,12 @@ pipeline {
    agent any
 
     stages {
+	stage('Checkout SCM'){
+            
+            steps {
+                checkout(url: 'https://github.com/FilipCh/coursework_2.git')
+            }
+        }
         
 	
         stage('SonarQube Code Analysis') {
