@@ -3,10 +3,7 @@ pipeline {
    agent any
 
     stages {
-        stage('Checkout SCM'){
-            
-            checkout scm
-        }
+        
 	
         stage('SonarQube Code Analysis') {
             environment {
@@ -31,7 +28,7 @@ pipeline {
         stage('Build & Push Docker Image') {
             steps {
                 script {
-                    def app = docker.build("FilipCh/coursework_2")
+                    def app = docker.build("filipch/coursework_2")
                     docker.withRegistry("https://registry.hub.docker.com", "docker_credentials") {
                     app.push("${env.BUILD_NUMBER}")
                     app.push("latest")
