@@ -1,42 +1,43 @@
 pipeline {
-    agent any
-    environment {
-        CI = 'true'
-    }
+    
+   agent any
+
     stages {
-       stage('Sonarqube') {
-    environment {
-        scannerHome = tool 'SonarQubeScanner'
-    }
-    steps {
-        withSonarQubeEnv('sonarqube') {
-            sh "${scannerHome}/bin/sonar-scanner"
+        stage('Checkout SCM'){
+            
+            checkout scm
         }
-        timeout(time: 10, unit: 'MINUTES') {
-            waitForQualityGate abortPipeline: true
-       	 }
-}
-}
-    }
-}
-node {
-    def app
-
-    stage('Clone repository') {
-       
-        checkout scm
-    }
-
-    stage('Build image') {
-       
-
-        app = docker.build("filipch/coursework_2")
-    }
-
-    stage ('Test image'){
-	app.inside {
-		sh 'echo "Test Successful"'
-		}
-	}
 	
-}
+        stage('SonarQube Code Analysis') {
+            environment {
+                scanner = tool 'SonarQubeScanner'
+            }
+            
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh "${scanner}/bin/sonar-scanner -D sonar.login=admin -D sonar.password=admin"
+                }
+            }
+        }
+        
+        stage('Quality Gate'){
+            steps {
+               timeout(time: 5, unit: 'MINUTES') {
+               waitForQualityGate abortPipeline: true
+               }
+            }
+        }
+        
+        stage('Build & Push Docker Image') {
+            steps {
+                script {
+                    def app = docker.build("FilipCh/coursework_2")
+                    docker.withRegistry("https://registry.hub.docker.com", "docker_credentials") {
+                    app.push("${env.BUILD_NUMBER}")
+                    app.push("latest")
+                }
+            }
+          }
+        }
+    }
+	}
