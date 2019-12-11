@@ -1,6 +1,6 @@
 pipeline {
     environment{
-	registry = "fchojn200/coursework_2"
+	registry = "filipch/devopscoursework_2"
 
 	}
    agent any
