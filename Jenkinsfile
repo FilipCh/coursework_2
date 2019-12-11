@@ -34,7 +34,9 @@ pipeline {
             steps {
                 script {
                     def app = docker.build("filipch/coursework_2")
-                   
+                   docker.withRegistry("https://registry.hub.docker.com", "docker_credentials") {
+                    app.push("${env.BUILD_NUMBER}")
+                    app.push("latest")
                 }
             }
           }
