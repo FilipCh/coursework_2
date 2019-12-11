@@ -24,16 +24,13 @@ pipeline {
                 withSonarQubeEnv('sonarqube') {
                     sh "${scanner}/bin/sonar-scanner -D sonar.login=admin -D sonar.password=admin"
                 }
+				 timeout(time: 10, unit: 'MINUTES'){
+                            waitForQualityGate abortPipeline: true
+                        }
             }
         }
         
-        stage('Quality Gate'){
-            steps {
-               timeout(time: 2, unit: 'MINUTES') {
-               waitForQualityGate abortPipeline: true
-               }
-            }
-        }
+        
         
         stage('Build Docker Image') {
             steps {
